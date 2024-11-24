@@ -1,0 +1,26 @@
+name: CI/CD Pipeline to WSL
+
+on:
+  push:
+    branches:
+      - master  # Trigger this action when pushing to the master branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Use the GitHub-hosted Ubuntu runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to WSL
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /home/sumit/cicd_website && git pull origin master
+            # You can add more commands here like restarting services or clearing cache if needed
+          EOF
