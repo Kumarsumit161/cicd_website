@@ -12,6 +12,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: my_laravel_db
+          MYSQL_USER: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -20,26 +31,32 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, xml, sqlite, bcmath, curl, opcache, zip
+        extensions: mbstring, xml, bcmath, curl, opcache, zip
 
     - name: Install dependencies
       run: |
         composer install --prefer-dist --no-interaction
 
-    - name: Create SQLite database file
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
-
     - name: Configure Environment
       run: |
         cp .env.example .env
         php artisan key:generate
+        # Update the .env file for MySQL
+        sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
+        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+        sed -i 's/DB_PORT=3306/DB_PORT=3306/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=my_laravel_db/' .env
+        sed -i 's/DB_USERNAME=root/DB_USERNAME=root/' .env
+        sed -i 's/DB_PASSWORD=/DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}/' .env
 
     - name: Run Tests
       env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite  # Relative path for SQLite database
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: my_laravel_db
+        DB_USERNAME: root
+        DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
         APP_ENV: testing
       run: |
         php artisan config:clear
