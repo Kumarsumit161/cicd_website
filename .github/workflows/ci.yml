@@ -22,6 +22,14 @@ jobs:
         php-version: '8.2'
         extensions: mbstring, xml, sqlite, bcmath, curl, opcache, zip
 
+    - name: Prepare Testing Environment
+      run: |
+        cp .env .env.testing
+        echo "APP_KEY=${{ secrets.APP_KEY }}" >> .env.testing
+        touch database/database.sqlite
+        php artisan config:clear
+
+
     - name: Install dependencies
       run: |
         composer install --prefer-dist --no-interaction
