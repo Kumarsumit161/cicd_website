@@ -31,17 +31,18 @@ jobs:
       run: |
         cp .env.example .env
         php artisan key:generate
-        # Update the .env file for MySQL
         sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
-        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=mysql/' .env  # Use mysql service
+        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=mysql/' .env
         sed -i 's/DB_PORT=3306/DB_PORT=3306/' .env
         sed -i 's/DB_DATABASE=laravel/DB_DATABASE=my_laravel_db/' .env
-        sed -i 's/DB_USERNAME=root/DB_USERNAME=root/' .env
-        sed -i 's/DB_PASSWORD=/DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}/' .env
+        sed -i "s/DB_PASSWORD=/DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}/" .env
+
+    - name: Debug Environment
+      run: cat .env
 
     - name: Wait for MySQL to be ready
       run: |
-        until mysql -h mysql -u root -p$MYSQL_ROOT_PASSWORD -e 'show databases;'; do
+        until mysql -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }} -e 'show databases;'; do
           echo "Waiting for MySQL to be ready..."
           sleep 5
         done
@@ -53,12 +54,12 @@ jobs:
     - name: Run Tests
       env:
         DB_CONNECTION: mysql
-        DB_HOST: mysql  # Use mysql service
+        DB_HOST: mysql
         DB_PORT: 3306
         DB_DATABASE: my_laravel_db
         DB_USERNAME: root
-        DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         APP_ENV: testing
       run: |
-        php artisan migrate --force  # Run migrations
-        php artisan test  # Run tests
+        php artisan migrate --env=testing --force
+        php artisan test
