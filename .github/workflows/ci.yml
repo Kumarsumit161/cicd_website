@@ -47,6 +47,10 @@ jobs:
         php artisan config:clear
         php artisan cache:clear
 
+    - name: Create SQLite Database
+      run: |
+        touch database/database.sqlite  # Create the SQLite database file if it doesn't exist
+
     - name: Run Tests
       if: ${{ github.event.inputs.skip_tests != 'true' }}
       env:
@@ -81,4 +85,3 @@ jobs:
           php artisan route:cache
           php artisan queue:restart
         EOF
-
