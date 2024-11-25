@@ -32,8 +32,8 @@ jobs:
 
     - name: Create SQLite database file
       run: |
-        mkdir -p /tmp  # Ensure the /tmp directory exists
-        touch /tmp/database.sqlite  # Create the SQLite file in /tmp
+        mkdir -p /home/runner/work/cicd_website/cicd_website/database  # Ensure the database directory exists
+        touch /home/runner/work/cicd_website/cicd_website/database/database.sqlite  # Create the SQLite file at the correct location
 
     - name: Copy .env.testing to .env
       run: |
