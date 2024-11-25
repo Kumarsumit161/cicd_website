@@ -34,7 +34,8 @@ jobs:
     - name: Run Tests
       env:
         APP_KEY: ${{ secrets.APP_KEY }}  # Explicitly set the APP_KEY for the test environment
-      run: |
+        APP_ENV: testing  # Set to testing environment explicitly
+       run: |
         php artisan migrate --env=testing
         php artisan test --env=testing
 
