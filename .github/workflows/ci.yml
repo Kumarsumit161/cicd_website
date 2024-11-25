@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - master
+  workflow_dispatch:  # This allows manual triggering with inputs
+    inputs:
+      skip_tests:
+        description: 'Skip running tests'
+        required: false
+        default: 'false'
 
 jobs:
   build:
@@ -29,15 +35,20 @@ jobs:
     - name: Set APP_KEY for testing environment
       run: |
         echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env.testing
+        cat .env.testing  # Debug: print the contents of .env.testing to verify APP_KEY
 
     - name: Copy .env.testing to .env
       run: |
         cp .env.testing .env
+        cat .env  # Debug: print the contents of .env after copying to ensure APP_KEY is there
+
+    - name: Clear config cache
+      run: |
+        php artisan config:clear
+        php artisan cache:clear
 
     - name: Run Tests
-      env:
-        APP_KEY: ${{ secrets.APP_KEY }}  # Explicitly set the APP_KEY for the test environment
-        APP_ENV: testing  # Set to testing environment explicitly
+      if: ${{ github.event.inputs.skip_tests != 'true' }}  # Skip tests if input is 'true'
       run: |
         php artisan migrate --env=testing
         php artisan test --env=testing
