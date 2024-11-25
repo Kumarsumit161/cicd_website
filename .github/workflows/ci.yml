@@ -53,6 +53,11 @@ jobs:
         php artisan config:clear
         php artisan cache:clear
 
+    - name: Ensure database directory exists
+      run: |
+        mkdir -p database  # Create the database directory if it doesn't exist
+        echo "Database directory ensured at $(pwd)/database"
+
     - name: Check if SQLite database exists and create if necessary
       run: |
         echo "Checking if SQLite database file exists..."
