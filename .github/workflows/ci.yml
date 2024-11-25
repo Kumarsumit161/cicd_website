@@ -7,8 +7,8 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: my_laravel_db
-          MYSQL_USER: root
+          MYSQL_DATABASE: laravel_db
+          MYSQL_USER: sumit
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -32,9 +32,10 @@ jobs:
         cp .env.example .env
         php artisan key:generate
         sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
-        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=mysql/' .env
+        sed -i 's/DB_HOST=127.0.0.1/DB_HOST=isitca-all.c4hva0l5qlqf.ap-south-1.rds.amazonaws.com/' .env
         sed -i 's/DB_PORT=3306/DB_PORT=3306/' .env
-        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=my_laravel_db/' .env
+        sed -i 's/DB_DATABASE=laravel/DB_DATABASE=laravel_db/' .env
+        sed -i 's/DB_USERNAME=root/DB_USERNAME=sumit/' .env
         sed -i "s/DB_PASSWORD=/DB_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}/" .env
 
     - name: Debug Environment
@@ -54,10 +55,10 @@ jobs:
     - name: Run Tests
       env:
         DB_CONNECTION: mysql
-        DB_HOST: mysql
+        DB_HOST: isitca-all.c4hva0l5qlqf.ap-south-1.rds.amazonaws.com
         DB_PORT: 3306
-        DB_DATABASE: my_laravel_db
-        DB_USERNAME: root
+        DB_DATABASE: laravel_db
+        DB_USERNAME: sumit
         DB_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         APP_ENV: testing
       run: |
