@@ -30,10 +30,10 @@ jobs:
       run: |
         echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env.testing
 
-    - name: Create SQLite database file if it doesn't exist
+    - name: Create SQLite database file
       run: |
-        mkdir -p database  # Ensure the database folder exists
-        touch database/database.sqlite  # Create the SQLite file if it doesn't exist
+        mkdir -p /tmp  # Ensure the /tmp directory exists
+        touch /tmp/database.sqlite  # Create the SQLite file in /tmp
 
     - name: Copy .env.testing to .env
       run: |
