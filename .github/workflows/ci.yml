@@ -1,3 +1,4 @@
+root@DESKTOP-O81JFQ2:/home/sumit/cicd_website# cat .github/workflows/ci.yml
 name: CI Workflow
 
 on:
@@ -15,7 +16,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    - name: Set up SSH key for GitHub
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     services:
       mysql:
         image: mysql:8.0
