@@ -43,27 +43,31 @@ jobs:
         echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env.testing
         cat .env.testing  # Verify the database path in .env.testing
 
-
     - name: Copy .env.testing to .env
       run: |
         cp .env.testing .env
-        cat .env  # Debugging: output the contents of .env to ensure APP_KEY is set correctly
+        cat .env  # Debugging: output the contents of .env to ensure APP_KEY and DB_DATABASE are set correctly
 
     - name: Clear config cache
       run: |
         php artisan config:clear
         php artisan cache:clear
 
-    - name: Check for database file
+    - name: Check if SQLite database exists and create if necessary
       run: |
         echo "Checking if SQLite database file exists..."
-        ls -la database/database.sqlite  # This will list the file or show if it doesn't exist
         if [ ! -f database/database.sqlite ]; then
           echo "SQLite database not found, creating it..."
           touch database/database.sqlite
+          echo "Database file created at $(pwd)/database/database.sqlite"
         else
           echo "SQLite database already exists"
         fi
+
+    - name: Run Migrations
+      run: |
+        echo "Running migrations..."
+        php artisan migrate --env=testing
 
     - name: Run Tests
       if: ${{ github.event.inputs.skip_tests != 'true' }}
@@ -71,7 +75,6 @@ jobs:
         APP_KEY: ${{ secrets.APP_KEY }}  # Explicitly set APP_KEY from secrets, if available
         APP_ENV: testing  # Set to testing environment
       run: |
-        php artisan migrate --env=testing
         php artisan test --env=testing
 
   deploy:
