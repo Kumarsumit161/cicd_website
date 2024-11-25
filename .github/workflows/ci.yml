@@ -47,9 +47,16 @@ jobs:
         php artisan config:clear
         php artisan cache:clear
 
-    - name: Create SQLite Database
+    - name: Check for database file
       run: |
-        touch database/database.sqlite  # Create the SQLite database file if it doesn't exist
+        echo "Checking if SQLite database file exists..."
+        ls -la database/database.sqlite  # This will list the file or show if it doesn't exist
+        if [ ! -f database/database.sqlite ]; then
+          echo "SQLite database not found, creating it..."
+          touch database/database.sqlite
+        else
+          echo "SQLite database already exists"
+        fi
 
     - name: Run Tests
       if: ${{ github.event.inputs.skip_tests != 'true' }}
