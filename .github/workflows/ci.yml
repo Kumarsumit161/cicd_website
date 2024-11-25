@@ -29,7 +29,10 @@ jobs:
     - name: Set APP_KEY for testing environment
       run: |
         echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env.testing
-        echo "APP_KEY=$APP_KEY" # Ensure APP_KEY is properly set in the environment
+        
+    - name: Copy .env.testing to .env
+      run: |
+        cp .env.testing .env
 
     - name: Run Tests
       env:
