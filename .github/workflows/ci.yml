@@ -29,8 +29,11 @@ jobs:
     - name: Set APP_KEY for testing environment
       run: |
         echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env.testing
+        echo "APP_KEY=$APP_KEY" # Ensure APP_KEY is properly set in the environment
 
     - name: Run Tests
+      env:
+        APP_KEY: ${{ secrets.APP_KEY }}  # Explicitly set the APP_KEY for the test environment
       run: |
         php artisan migrate --env=testing
         php artisan test --env=testing
