@@ -19,7 +19,7 @@ jobs:
     - name: Set up SSH key for GitHub
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
     services:
       mysql:
         image: mysql:8.0
