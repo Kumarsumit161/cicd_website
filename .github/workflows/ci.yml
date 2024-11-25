@@ -1,3 +1,13 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,10 +26,9 @@ jobs:
       run: |
         composer install --prefer-dist --no-interaction
 
-    - name: Set APP_KEY for Testing
+    - name: Set APP_KEY for testing environment
       run: |
-        cp .env .env.testing
-        php artisan key:generate --env=testing
+        echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env.testing
 
     - name: Run Tests
       run: |
