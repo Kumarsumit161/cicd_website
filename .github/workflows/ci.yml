@@ -30,26 +30,20 @@ jobs:
       run: |
         echo "APP_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" >> .env.testing
 
-    - name: Create SQLite database file
+    - name: Create SQLite database file if it doesn't exist
       run: |
-        mkdir -p database  # Ensure the directory exists
-        touch database/database.sqlite  # Ensure the SQLite file exists
+        mkdir -p database  # Ensure the database folder exists
+        touch database/database.sqlite  # Create the SQLite file if it doesn't exist
 
     - name: Copy .env.testing to .env
       run: |
         cp .env.testing .env
-
-    - name: Debugging: List files and check .env
-      run: |
-        ls -al database  # Check if the SQLite file exists
-        cat .env.testing  # Print .env.testing content to verify it's correct
 
     - name: Run Tests
       env:
         APP_KEY: ${{ secrets.APP_KEY }}  # Explicitly set the APP_KEY for the test environment
         APP_ENV: testing  # Set to testing environment explicitly
       run: |
-        php artisan config:clear  # Clear config cache to ensure no old settings
         php artisan migrate --env=testing  # Run migrations
         php artisan test --env=testing  # Run tests
 
@@ -61,6 +55,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, sqlite, bcmath, curl, opcache, zip
+
     - name: Deploy to Server
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -69,4 +69,12 @@ jobs:
       run: |
         echo "$SSH_PRIVATE_KEY" > private_key.pem
         chmod 600 private_key.pem
-        ssh -o StrictHostKeyChecking=no -
+        ssh -o StrictHostKeyChecking=no -i private_key.pem $SERVER_USER@$SERVER_IP << 'EOF'
+          cd /path/to/your/project
+          git pull origin master
+          composer install --no-dev --optimize-autoloader
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan queue:restart
+        EOF
