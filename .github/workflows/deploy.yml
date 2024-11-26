@@ -19,7 +19,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Debug SSH Connection
-        run: ssh -v -o StrictHostKeyChecking=no sumit@127.0.0.1 echo "Connection successful"
+        run: ssh -v -o StrictHostKeyChecking=no sumit@172.20.240.1 echo "Connection successful"
 
       - name: Deploy to WSL
         run: |
