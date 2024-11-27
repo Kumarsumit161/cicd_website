@@ -1,5 +1,5 @@
 root@DESKTOP-O81JFQ2:/home/sumit/cicd_website# cat .github/workflows/ci.yml
-name: CI Workflow
+name:CI Workflow
 
 on:
   # Trigger when code is pushed to the master branch
